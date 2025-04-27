@@ -1,0 +1,36 @@
+/* Basic styling */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 20px;
+  color: white;
+  background-color: rgb(104, 97, 97);
+}
+.history-item {
+  border: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #f9f9f9;
+}
+.history-item strong {
+  display: block;
+  margin-bottom: 5px;
+}
+.error {
+  color: red;
+  font-weight: bold;
+}
+.response {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #e9f5ff;
+}
+.sources {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 10px;
+}
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+} /* Wrap long lines in code blocks */

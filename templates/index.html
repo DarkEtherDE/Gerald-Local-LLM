@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerald - AI Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    #<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* --- Modernized Styling --- */
+        :root {
+            --bg-color: rgb(28, 30, 31); /* Slightly darker background */
+            --container-bg: rgb(40, 44, 46); /* Background for chat bubbles */
+            --ai-container-bg: rgb(30, 50, 65); /* Distinct background for AI responses */
+            --border-color: rgb(60, 65, 70); /* Subtle border color */
+            --text-color: rgb(220, 220, 220); /* Slightly off-white text */
+            --label-color: rgb(160, 160, 160); /* Softer color for labels */
+            --button-bg: #007bff;
+            --button-hover-bg: #0056b3;
+            --input-bg: rgb(50, 55, 60);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* Common system font stack */
+            margin: 0; /* Remove default body margin */
+            padding: 20px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6; /* Improve readability */
+        }
+
+        /* Center content and limit width */
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto; /* Center the container */
+            padding: 20px;
+            background-color: var(--container-bg); /* Optional container background */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); /* Subtle shadow */
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 1.5em;
+            color: #fff; /* Ensure headings are bright */
+        }
+
+        /* Form Styling */
+        form {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box; /* Include padding and border in width */
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 1em;
+            line-height: 1.5;
+            resize: vertical; /* Allow vertical resize only */
+        }
+
+        button[type="submit"] {
+            display: block; /* Make button take full width or center easily */
+            width: auto; /* Adjust width as needed, or use margin auto to center */
+            margin: 10px auto 0 auto; /* Center the button */
+            padding: 10px 25px;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s ease; /* Smooth hover effect */
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        /* Error Styling */
+        .error {
+            color: #ff6b6b; /* Brighter red for dark background */
+            background-color: rgba(255, 107, 107, 0.1); /* Subtle red background */
+            border: 1px solid #ff6b6b;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Response & History Styling */
+        .response,
+        .history-item {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color); /* Subtle border */
+        }
+
+        .response {
+            background-color: var(--ai-container-bg); /* Distinct AI background */
+        }
+
+        .history-item {
+             background-color: var(--container-bg); /* Use container bg for history wrapper */
+        }
+
+        /* Style Question/Answer within History */
+        .history-item .user-question,
+        .history-item .ai-response {
+             padding: 10px;
+             border-radius: 6px;
+             margin-top: 8px; /* Space below the label */
+        }
+
+        .history-item .user-question {
+             background-color: var(--input-bg); /* Match input background */
+        }
+         .history-item .ai-response {
+             background-color: var(--ai-container-bg); /* Match main AI response background */
+        }
+
+
+        .response strong,
+        .history-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--label-color); /* Softer label color */
+            font-weight: 600; /* Slightly bolder label */
+            font-size: 0.9em;
+        }
+
+        /* Removed .sources styling as it was removed from HTML */
+
+        pre { /* Keep pre styling for potential future use */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Wrap content in a container -->
+    <div class="chat-container">
+
+        <h1>Ask me anything!</h1>
+
+        <!-- Single Form for User Input -->
+        <form method="POST">
+            <div>
+                <textarea name="question" rows="4" cols="80" placeholder="Enter your question here...">{{ question }}</textarea>
+            </div>
+            <div>
+                <button type="submit">Ask Gerald</button>
+            </div>
+        </form>
+
+        <!-- Display Error if any -->
+        {% if error %}
+            <p class="error">Error: {{ error }}</p>
+        {% endif %}
+
+        <!-- Display Current AI Response -->
+        {% if final_response %}
+            <div class="response">
+                <strong>Gerald's Response:</strong>
+                {# Wrap actual response text for consistent padding/margin #}
+                <div class="ai-response">
+                   <p>{{ final_response | safe }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Display Conversation History -->
+        {% if history %}
+            <h2>Conversation History (Last {{ history|length }})</h2>
+            {% for item in history|reverse %} {# Show newest first #}
+                <div class="history-item">
+                    <strong>You asked:</strong>
+                    <!-- Add class="user-question" -->
+                    <div class="user-question">
+                       <p>{{ item.question }}</p>
+                    </div>
+
+                    <strong>Gerald Responded:</strong>
+                    <!-- Add class="ai-response" -->
+                    <div class="ai-response">
+                       <p>{{ item.response | safe }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    </div> <!-- End chat-container -->
+</body>
+</html>

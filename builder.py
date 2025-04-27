@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 import time
 import argparse
+from textwrap import wrap
 from sentence_transformers import SentenceTransformer
 import logging # Use logging for better output control
 import chromadb
@@ -29,7 +30,7 @@ except NameError:
 script_dir = script_path.parent
 
 VECTOR_DB_PATH = script_dir / "vector_db" # Directory where ChromaDB stores data
-COLLECTION_NAME = "file_chunks" # Collection name
+COLLECTION_NAME = "file_chunk" # Collection name
 
 # == Indexing Configuration ==
 # Add or remove extensions you want to index
@@ -44,7 +45,7 @@ CHUNK_SIZE = 500 # Approximate characters per chunk
 CHUNK_OVERLAP = 50 # Approximate characters overlap between chunks
 
 # == Logging Configuration ==
-LOG_FILE_NAME = "indexing_semantic_log.txt"
+LOG_FILE_NAME = "semantic_log.txt"
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 
 # --- End Configuration ---
@@ -69,7 +70,6 @@ def split_text_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
     """Splits text into chunks using basic textwrap."""
     # Consider replacing with more sophisticated methods if needed
     # e.g., splitting by paragraphs first, then wrapping.
-    from textwrap import wrap
     if not text: # Handle empty content
         return []
     # Basic wrap - might split mid-sentence
@@ -77,29 +77,6 @@ def split_text_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
     # Filter out potentially empty chunks resulting from wrapping
     return [chunk.strip() for chunk in chunks if chunk.strip()]
 
-# --- Helper function for Ollama Embeddings (Optional) ---
-# def get_ollama_embedding(text_chunk, model_name=EMBEDDING_MODEL_NAME):
-#     import requests
-#     try:
-#         response = requests.post("http://localhost:11434/api/embeddings", json={
-#             "model": model_name,
-#             "prompt": text_chunk
-#         }, timeout=60) # Add timeout
-#         response.raise_for_status()
-#         embedding = response.json().get("embedding")
-#         if embedding:
-#             return embedding
-#         else:
-#             logging.error(f"Ollama embedding response missing 'embedding' key: {response.json()}")
-#             return None
-#     except requests.exceptions.RequestException as e:
-#         logging.error(f"Error connecting to Ollama embedding endpoint: {e}")
-#         return None
-#     except Exception as e:
-#         logging.error(f"Error getting Ollama embedding: {e}")
-#         return None
-
-# --- Main Indexing Function ---
 def index_directory(source_dir, vector_db_client, embedding_model_instance, script_path):
     # ... (existing setup: get collection, get existing metadata) ...
     try:
@@ -181,7 +158,7 @@ def index_directory(source_dir, vector_db_client, embedding_model_instance, scri
                  continue # Skip to next file
 
             # Chunk text (as before)
-            chunks = textwrap.wrap(file_content_str, width=CHUNK_SIZE, replace_whitespace=False, drop_whitespace=False)
+            chunks = wrap(file_content_str, width=CHUNK_SIZE, replace_whitespace=False, drop_whitespace=False)
             if not chunks:
                  logging.warning(f"File {relative_filename} resulted in zero chunks.")
                  continue # Skip if no content

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View File: {{ filename }}</title>
+    <!-- Link the same stylesheet -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
+     <style>
+        /* Basic styles matching the main app's dark theme */
+        :root {
+            --bg-color: rgb(28, 30, 31); --container-bg: rgb(40, 44, 46);
+            --border-color: rgb(60, 65, 70); --text-color: rgb(220, 220, 220);
+            --input-bg: rgb(50, 55, 60);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; color: var(--text-color); background-color: var(--bg-color); line-height: 1.6; }
+        h1 { text-align: center; margin-bottom: 1.5em; color: #fff; }
+        a { color: #87ceeb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .file-content { margin-top: 20px; border: 1px solid var(--border-color); padding: 15px; background-color: var(--container-bg); border-radius: 8px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; background-color: var(--input-bg); padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95em; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        th { background-color: rgb(60, 65, 70); font-weight: bold; }
+        tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.03); } /* Slightly lighter even rows */
+    </style>
+</head>
+<body>
+
+    <h1>Viewing File: {{ filename }}</h1>
+    <p><a href="{{ url_for('index') }}">&laquo; Back to Chat</a></p>
+
+    <div class="file-content">
+        {% if file_type == 'txt' %}
+            <h2>Text Content</h2>
+            <pre>{{ content }}</pre>
+
+        {% elif file_type == 'csv' %}
+            <h2>CSV Content</h2>
+            {% if csv_data %}
+                <table>
+                    <thead>
+                        {% if csv_data[0] %} {# Assume first row is header #}
+                            <tr> {% for header in csv_data[0] %} <th>{{ header }}</th> {% endfor %} </tr>
+                        {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for row in csv_data[1:] %} {# Skip header row for data #}
+                            <tr> {% for cell in row %} <td>{{ cell }}</td> {% endfor %} </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p><em>CSV file appears to be empty or could not be parsed correctly.</em></p>
+            {% endif %}
+
+        {% else %}
+            <p><em>Unsupported file type for inline viewing.</em></p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

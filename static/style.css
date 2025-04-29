@@ -32,7 +32,7 @@ body {
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-} /* Wrap long lines in code blocks */
+} 
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 20px;
@@ -67,4 +67,34 @@ body {
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-} /* Wrap long lines in code blocks */
+}
+ form div:has(#subdir_select) {
+  margin-bottom: 15px;
+}
+
+label[for="subdir_select"] {
+  display: block; 
+  margin-bottom: 5px; 
+  color: var(--label-color); 
+  font-weight: 600; 
+  font-size: 0.9em;
+}
+select#subdir_select {
+  width: 100%; 
+  padding: 10px 12px; 
+  background-color: var(--input-bg); 
+  color: var(--text-color); 
+  border: 1px solid var(--border-color); 
+  border-radius: 6px; 
+  font-size: 1em; 
+  cursor: pointer; 
+}
+select#subdir_select option {
+  background-color: var(--input-bg); 
+  color: var(--text-color); 
+}
+select#subdir_select:focus {
+    outline: none; 
+    border-color: var(--button-bg); 
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); 
+}
